@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PyLearn Pro: Dynamic Python Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #005f73;
+      --secondary-color: #0a9396;
+      --accent-color: #94d2bd;
+      --success-color: #3ba272;
+      --danger-color: #e5383b;
+      --light-bg: #e9f5f5;
+      --text-color: #0d1b2a;
+      --light-text: #f1faee;
+      --card-bg: rgba(255, 255, 255, 0.6);
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, var(--light-bg), #d4e0ee);
+      margin: 0;
+      padding: 25px;
+      color: var(--text-color);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    header {
+      background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+      color: var(--light-text);
+      padding: 25px 30px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0, 95, 115, 0.2);
+    }
+    
+    header h1 {
+        margin: 0;
+        font-weight: 700;
+    }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 25px;
+        margin-top: 25px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+    .card h2 {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--primary-color);
+        margin-top: 0;
+        border-bottom: 1px solid var(--accent-color);
+        padding-bottom: 10px;
+        font-size: 1.3em;
+    }
+
+    .card h2 .icon {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .start-button {
+      background-color: var(--secondary-color);
+      color: var(--light-text);
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 1em;
+      font-weight: 500;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 15px;
+      transition: background-color 0.2s;
+    }
+    .start-button:hover {
+      background-color: var(--primary-color);
+    }
+
+    @keyframes animate-progress {
+        0% { width: 0%; }
+    }
+    .progress-bar {
+      background: var(--success-color);
+      height: 100%;
+      color: var(--light-text);
+      text-align: center;
+      line-height: 25px;
+      font-weight: 600;
+      border-radius: 20px;
+      animation: animate-progress 2s 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+
+    .strengths-weaknesses {
+        display: flex;
+        gap: 20px;
+    }
+    .strengths-weaknesses div { width: 50%; }
+    .strengths-weaknesses h3 { font-size: 1em; }
+    .strengths-weaknesses ul li { background: #e9ecef; border-radius: 5px; padding: 5px 10px; }
+
+    /* Quiz Styles */
+    #quiz-options button {
+        display: block;
+        width: 100%;
+        margin-bottom: 10px;
+        padding: 12px;
+        text-align: left;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    #quiz-options button:hover:not(:disabled) {
+        background: var(--light-bg);
+        border-color: var(--accent-color);
+    }
+    #quiz-options button.correct {
+        background-color: var(--success-color);
+        color: white;
+        border-color: var(--success-color);
+    }
+    #quiz-options button.incorrect {
+        background-color: var(--danger-color);
+        color: white;
+        border-color: var(--danger-color);
+    }
+    #quiz-feedback { margin-top: 15px; font-weight: 500; }
+
+    /* Chatbot Styles */
+    .chatbox { border: 1px solid #ccc; padding: 10px; height: 150px; overflow-y: scroll; background: #fdfdfd; border-radius: 8px; margin-bottom: 10px; }
+    .chat-message { margin: 5px 0; padding: 8px; border-radius: 8px; max-width: 80%; }
+    .user-message { background: var(--secondary-color); color: white; margin-left: auto; text-align: right; }
+    .ai-message { background: #e9ecef; }
+    .chat-input { display: flex; gap: 10px; }
+    .chat-input input { flex-grow: 1; padding: 10px; border: 1px solid #ccc; border-radius: 8px; }
+    .chat-input button { background: var(--primary-color); color: white; border: none; padding: 0 20px; border-radius: 8px; cursor: pointer; }
+    
+    /* Code Snippet Styles */
+    .code-container { position: relative; }
+    pre { background: #2d2d2d; color: #f1faee; padding: 20px; border-radius: 8px; white-space: pre-wrap; }
+    .copy-button { position: absolute; top: 10px; right: 10px; background: #555; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <header>
+      <h1>PyLearn Pro</h1>
+      <p>Your Dynamic & Personalized Python Learning Dashboard</p>
+    </header>
+
+    <div class="dashboard-grid">
+        <div class="card">
+            <h2>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>
+                Current Focus
+            </h2>
+            <p><strong>Topic:</strong> Python Functions & Scope</p>
+            <p>Your personalized path suggests mastering functions before moving on to classes.</p>
+            <button class="start-button" onclick="alert('Launching Interactive Lesson on Python Functions...')">Start Lesson</button>
+        </div>
+
+        <div class="card">
+            <h2>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" /></svg>
+                Weekly Progress
+            </h2>
+            <div class="progress-bar-container" style="background: #ddd; border-radius: 20px; overflow: hidden; height: 25px;">
+                <div class="progress-bar" style="width: 75%;">75%</div>
+            </div>
+            <p style="margin-top: 15px;">Excellent work this week! You've completed 6/8 modules.</p>
+        </div>
+
+        <div class="card">
+            <h2>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" /></svg>
+                Strengths & Weaknesses
+            </h2>
+            <div class="strengths-weaknesses">
+                <div>
+                    <h3 style="color: var(--success-color);">✅ Strengths</h3>
+                    <ul><li>Variables & Data Types</li><li>Basic Operators</li><li>List Manipulation</li></ul>
+                </div>
+                <div>
+                    <h3 style="color: var(--danger-color);">⚠️ Needs Improvement</h3>
+                    <ul><li>Recursion</li><li>Lambda Functions</li><li>Decorators</li></ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" id="quiz-card">
+            <h2>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" /></svg>
+                Practice Quiz (AI-Generated)
+            </h2>
+            <p id="quiz-question"></p>
+            <div id="quiz-options"></div>
+            <div id="quiz-feedback"></div>
+            <button id="next-quiz-btn" style="display: none;" class="start-button">Next Question</button>
+        </div>
+
+        <div class="card">
+            <h2>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 9.75a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443h2.884M6.75 12h.008v.008H6.75V12z" /></svg>
+                AI Tutor Chatbot (Interactive)
+            </h2>
+            <div class="chatbox" id="chatbox">
+              <p class="ai-message chat-message">Hello Geethika! How can I help you with Python today?</p>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="chat-input" placeholder="Ask about 'for loops'..." />
+                <button id="chat-send-btn">Send</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" /></svg>
+                AI-Generated Code Snippet
+            </h2>
+            <div class="code-container">
+                <button class="copy-button" id="copy-code-btn">Copy</button>
+                <pre><code id="code-to-copy">def find_max(numbers):
+    # This function finds the maximum number in a list
+    if not numbers:
+        return None
+    max_num = numbers[0]
+    for num in numbers:
+        if num > max_num:
+            max_num = num
+    return max_num
+
+print(find_max([1, 5, 2, 9, 3]))</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+      <p>Created by Bhuvanagiri Geethika Sreya | OCU | Powered by AI</p>
+    </footer>
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- INTERACTIVE QUIZ ENGINE ---
+    const quizData = [
+        {
+            question: "What is the output of `len(['hello', 2, True])`?",
+            options: ["3", "2", "Error"],
+            answer: 0
+        },
+        {
+            question: "Which keyword is used to define a function in Python?",
+            options: ["func", "def", "function", "define"],
+            answer: 1
+        },
+        {
+            question: "What does `my_list[-1]` return for `my_list = [1, 2, 3]`?",
+            options: ["1", "2", "3", "Error"],
+            answer: 2
+        }
+    ];
+    let currentQuizQuestion = 0;
+    const questionEl = document.getElementById('quiz-question');
+    const optionsEl = document.getElementById('quiz-options');
+    const feedbackEl = document.getElementById('quiz-feedback');
+    const nextBtn = document.getElementById('next-quiz-btn');
+
+    function loadQuiz() {
+        feedbackEl.textContent = '';
+        nextBtn.style.display = 'none';
+        const currentData = quizData[currentQuizQuestion];
+        questionEl.textContent = currentData.question;
+        optionsEl.innerHTML = '';
+        currentData.options.forEach((option, index) => {
+            const button = document.createElement('button');
+            button.textContent = option;
+            button.addEventListener('click', () => checkAnswer(index, currentData.answer));
+            optionsEl.appendChild(button);
+        });
+    }
+
+    function checkAnswer(selectedIndex, correctIndex) {
+        const buttons = optionsEl.querySelectorAll('button');
+        buttons.forEach(button => button.disabled = true);
+        if (selectedIndex === correctIndex) {
+            buttons[selectedIndex].classList.add('correct');
+            feedbackEl.textContent = "Correct! Well done.";
+            feedbackEl.style.color = 'var(--success-color)';
+        } else {
+            buttons[selectedIndex].classList.add('incorrect');
+            buttons[correctIndex].classList.add('correct');
+            feedbackEl.textContent = "Not quite. The correct answer is highlighted.";
+            feedbackEl.style.color = 'var(--danger-color)';
+        }
+        nextBtn.style.display = 'block';
+    }
+    
+    nextBtn.addEventListener('click', () => {
+        currentQuizQuestion++;
+        if (currentQuizQuestion < quizData.length) {
+            loadQuiz();
+        } else {
+            document.getElementById('quiz-card').innerHTML = '<h2>Quiz Complete!</h2><p>Great job on finishing the practice quiz. New questions will be generated for your next session.</p>';
+        }
+    });
+
+    loadQuiz();
+
+    // --- INTERACTIVE CHATBOT ---
+    const chatbox = document.getElementById('chatbox');
+    const chatInput = document.getElementById('chat-input');
+    const sendBtn = document.getElementById('chat-send-btn');
+    
+    const aiResponses = {
+        "function": "A function is a reusable block of code that performs a specific action. You define one with `def my_function():`.",
+        "loop": "Python has `for` loops and `while` loops. A `for` loop iterates over a sequence (like a list), while a `while` loop runs as long as a condition is true.",
+        "list": "A list is a mutable, ordered collection of items. You create one with square brackets, like `my_list = [1, 'apple', True]`.",
+        "default": "That's a great question! Let me find the best resource for you on that. In the meantime, could you be more specific?"
+    };
+
+    function handleChat() {
+        const userMessage = chatInput.value.trim();
+        if (!userMessage) return;
+
+        appendMessage(userMessage, 'user-message');
+        chatInput.value = '';
+        
+        setTimeout(() => {
+            let response = aiResponses.default;
+            if (userMessage.toLowerCase().includes('function')) response = aiResponses.function;
+            else if (userMessage.toLowerCase().includes('loop')) response = aiResponses.loop;
+            else if (userMessage.toLowerCase().includes('list')) response = aiResponses.list;
+            appendMessage(response, 'ai-message');
+        }, 1200); // Simulate AI thinking time
+    }
+
+    function appendMessage(text, className) {
+        const messageDiv = document.createElement('p');
+        messageDiv.textContent = text;
+        messageDiv.className = `chat-message ${className}`;
+        chatbox.appendChild(messageDiv);
+        chatbox.scrollTop = chatbox.scrollHeight;
+    }
+    
+    sendBtn.addEventListener('click', handleChat);
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleChat();
+    });
+
+    // --- COPY CODE SNIPPET ---
+    const copyBtn = document.getElementById('copy-code-btn');
+    const codeToCopy = document.getElementById('code-to-copy').textContent;
+
+    copyBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(codeToCopy).then(() => {
+            copyBtn.textContent = 'Copied!';
+            setTimeout(() => {
+                copyBtn.textContent = 'Copy';
+            }, 2000);
+        });
+    });
+});
+</script>
+</body>
+</html>
